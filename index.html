@@ -63,6 +63,57 @@
         <!-- COLONNE GAUCHE : choix -->
         <div class="lg:col-span-7 space-y-8">
 
+            <!-- 0. Mon entreprise (mentions légales) -->
+            <section class="bg-[#0f1922] border border-gray-800 rounded-2xl p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i data-lucide="building-2" class="w-5 h-5 text-emerald-500"></i> Mon entreprise
+                    </h2>
+                    <span class="text-[10px] text-gray-500">enregistré sur cet appareil</span>
+                </div>
+                <p class="text-[11px] text-gray-500 bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-2.5 leading-relaxed">
+                    <i data-lucide="info" class="w-3.5 h-3.5 inline text-emerald-400 align-text-top"></i>
+                    Mentions légales obligatoires (BCE + TVA). À remplir une seule fois, le jour où ta société est créée et assujettie à la TVA.
+                </p>
+                <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">Dénomination</label>
+                        <input id="ent-nom" type="text" placeholder="M26 INFORMATIQUE" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">Forme juridique <span class="text-gray-600">(SRL, indép…)</span></label>
+                        <input id="ent-forme" type="text" placeholder="ex: SRL / indépendant" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="text-xs text-gray-400 block mb-1">Adresse du siège</label>
+                        <input id="ent-adresse" type="text" placeholder="Rue, n°, code postal, ville" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">N° d'entreprise (BCE)</label>
+                        <input id="ent-bce" type="text" placeholder="0xxx.xxx.xxx" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">N° de TVA</label>
+                        <input id="ent-tva" type="text" placeholder="BE 0xxx.xxx.xxx" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">E-mail</label>
+                        <input id="ent-email" type="email" placeholder="m26.informatique@gmail.com" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">Téléphone</label>
+                        <input id="ent-tel" type="text" placeholder="04xx xx xx xx" class="w-full rounded-lg px-3 py-2">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="text-xs text-gray-400 block mb-1">IBAN <span class="text-gray-600">(pour le paiement)</span></label>
+                        <input id="ent-iban" type="text" placeholder="BE.. .... .... ...." class="w-full rounded-lg px-3 py-2">
+                    </div>
+                </div>
+                <button onclick="sauverEntreprise()" class="bg-gray-900 border border-gray-800 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:border-gray-700 transition-all flex items-center gap-1.5">
+                    <i data-lucide="save" class="w-4 h-4"></i> Enregistrer mes infos
+                </button>
+            </section>
+
             <!-- 1. Client -->
             <section class="bg-[#0f1922] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <h2 class="text-lg font-bold flex items-center gap-2">
@@ -356,6 +407,27 @@ function genererDevis() {
         adresse: val('cli-adresse')
     };
 
+    // Infos entreprise (mentions légales)
+    const ent = {
+        nom: val('ent-nom') || 'M26 INFORMATIQUE',
+        forme: val('ent-forme'),
+        adresse: val('ent-adresse'),
+        bce: val('ent-bce'),
+        tva: val('ent-tva'),
+        email: val('ent-email') || 'm26.informatique@gmail.com',
+        tel: val('ent-tel'),
+        iban: val('ent-iban')
+    };
+    // Construit le bloc coordonnées entreprise (n'affiche que les champs remplis)
+    const entLignes = [
+        'Montage PC artisanal · Belgique',
+        ent.adresse,
+        [ent.email, ent.tel].filter(Boolean).join(' · '),
+        ent.bce ? 'N° entreprise (BCE) : ' + ent.bce : '',
+        ent.tva ? 'TVA : ' + ent.tva : ''
+    ].filter(Boolean).join('<br>');
+    const entNomHtml = ent.nom.replace(/^M26\s+/i, 'M26 <span style="color:#10b981;">') + (/^M26\s+/i.test(ent.nom) ? '</span>' : '');
+
     const lignesHtml = lignes.map(l => `
         <tr style="border-bottom:1px solid #e5e7eb;">
             <td style="padding:10px 8px;vertical-align:top;">
@@ -370,8 +442,8 @@ function genererDevis() {
     document.getElementById('facture-print').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #10b981;padding-bottom:16px;margin-bottom:24px;">
         <div>
-            <div style="font-size:22px;font-weight:800;letter-spacing:1px;">M26 <span style="color:#10b981;">INFORMATIQUE</span></div>
-            <div style="font-size:12px;color:#6b7280;margin-top:4px;">Montage PC artisanal · Belgique<br>m26.informatique@gmail.com</div>
+            <div style="font-size:22px;font-weight:800;letter-spacing:1px;">${entNomHtml}${ent.forme ? ' <span style="font-size:13px;font-weight:600;color:#6b7280;">' + ent.forme + '</span>' : ''}</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:4px;">${entLignes}</div>
         </div>
         <div style="text-align:right;">
             <div style="font-size:20px;font-weight:800;">DEVIS</div>
@@ -408,7 +480,7 @@ function genererDevis() {
 
     <div style="font-size:11px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px;line-height:1.6;">
         <strong>Conditions :</strong> Devis valable 30 jours. Garantie pièces et main d'œuvre 2 ans. Délai de montage 5 à 15 jours ouvrés (stress test 24h inclus).
-        Paiement de la totalité à la commande. Prix en euros, TVA belge 21 % incluse dans le total TTC.<br><br>
+        Paiement de la totalité à la commande${ent.iban ? ' (IBAN : ' + ent.iban + ')' : ''}. Prix en euros, TVA belge 21 % incluse dans le total TTC.<br><br>
         Bon pour accord (date + signature) :
         <div style="margin-top:40px;border-bottom:1px solid #9ca3af;width:240px;"></div>
     </div>`;
@@ -426,9 +498,29 @@ function fmt(n) {
 }
 function val(id) { return document.getElementById(id).value.trim(); }
 
+// ====================== INFOS ENTREPRISE (localStorage) ======================
+const ENT_CHAMPS = ['ent-nom', 'ent-forme', 'ent-adresse', 'ent-bce', 'ent-tva', 'ent-email', 'ent-tel', 'ent-iban'];
+
+function sauverEntreprise() {
+    const data = {};
+    ENT_CHAMPS.forEach(id => data[id] = document.getElementById(id).value);
+    localStorage.setItem('m26_entreprise', JSON.stringify(data));
+    alert('Infos entreprise enregistrées ✔ Elles seront reprises automatiquement sur tes prochains devis.');
+}
+
+function chargerEntreprise() {
+    const raw = localStorage.getItem('m26_entreprise');
+    if (!raw) return;
+    try {
+        const data = JSON.parse(raw);
+        ENT_CHAMPS.forEach(id => { if (data[id] != null) document.getElementById(id).value = data[id]; });
+    } catch (e) { /* données corrompues : on ignore */ }
+}
+
 // ====================== INIT ======================
 renderConfigs();
 renderServices();
+chargerEntreprise();
 recalculer();
 lucide.createIcons();
 </script>
