@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M26 INFORMATIQUE - Générateur de devis</title>
+    <title>M26 INFORMATIQUE - Devis</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -413,7 +413,11 @@ function genererDevis() {
         <div style="margin-top:40px;border-bottom:1px solid #9ca3af;width:240px;"></div>
     </div>`;
 
+    // Titre temporaire = n° de devis (en-tête d'impression + nom du fichier PDF plus propre)
+    const ancienTitre = document.title;
+    document.title = num;
     window.print();
+    document.title = ancienTitre;
 }
 
 // ====================== UTILITAIRES ======================
